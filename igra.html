@@ -132,6 +132,30 @@
             playerSpeed = 0;
         });
 
+        // Touch input handling
+        canvas.addEventListener("touchstart", (e) => {
+            const touch = e.touches[0];
+            const touchY = touch.clientY - canvas.getBoundingClientRect().top;
+            if (touchY < playerY + paddleHeight / 2) {
+                playerSpeed = -5;
+            } else {
+                playerSpeed = 5;
+            }
+        });
+
+        canvas.addEventListener("touchmove", (e) => {
+            const touch = e.touches[0];
+            const touchY = touch.clientY - canvas.getBoundingClientRect().top;
+            playerY = touchY - paddleHeight / 2;
+            if (playerY < 0) playerY = 0;
+            if (playerY + paddleHeight > canvas.height) playerY = canvas.height - paddleHeight;
+            e.preventDefault();
+        });
+
+        canvas.addEventListener("touchend", () => {
+            playerSpeed = 0;
+        });
+
         // Start the game
         gameLoop();
     </script>
