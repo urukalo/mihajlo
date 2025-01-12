@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ping Pong Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
+        }
+        canvas {
+            border: 2px solid white;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="600" height="400"></canvas>
+    <script>
+        // Setting up the canvas
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        // Game variables
+        let ballX = canvas.width / 2;
+        let ballY = canvas.height / 2;
+        let ballRadius = 10;
+        let ballSpeedX = 5;
+        let ballSpeedY = 5;
+
+        let paddleHeight = 100;
+        let paddleWidth = 10;
+        let playerY = (canvas.height - paddleHeight) / 2;
+        let aiY = (canvas.height - paddleHeight) / 2;
+        let playerSpeed = 0;
+        let aiSpeed = 5;
+
+        // Function to draw the ball
+        function drawBall() {
+            ctx.fillStyle = "white";
+            ctx.beginPath();
+            ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        // Function to draw paddles
+        function drawPaddles() {
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, playerY, paddleWidth, paddleHeight); // Player paddle
+            ctx.fillRect(canvas.width - paddleWidth, aiY, paddleWidth, paddleHeight); // AI paddle
+        }
+
+        // Function to update ball movement
+        function updateBall() {
+            ballX += ballSpeedX;
+            ballY += ballSpeedY;
+
+            // Ball collision with top and bottom
+            if (ballY - ballRadius < 0 || ballY + ballRadius > canvas.height) {
+                ballSpeedY = -ballSpeedY;
+            }
+
+            // Ball collision with paddles
+            if (ballX - ballRadius < paddleWidth && ballY > playerY && ballY < playerY + paddleHeight) {
+                ballSpeedX = -ballSpeedX;
+            }
+            if (ballX + ballRadius > canvas.width - paddleWidth && ballY > aiY && ballY < aiY + paddleHeight) {
+                ballSpeedX = -ballSpeedX;
+            }
+
+            // Ball out of bounds
+            if (ballX - ballRadius < 0 || ballX + ballRadius > canvas.width) {
+                resetBall();
+            }
+        }
+
+        // Function to reset ball to center
+        function resetBall() {
+            ballX = canvas.width / 2;
+            ballY = canvas.height / 2;
+            ballSpeedX = -ballSpeedX;
+            ballSpeedY = 5 * (Math.random() > 0.5 ? 1 : -1);
+        }
+
+        // Function to update the player paddle position
+        function updatePlayer() {
+            playerY += playerSpeed;
+
+            if (playerY < 0) playerY = 0;
+            if (playerY + paddleHeight > canvas.height) playerY = canvas.height - paddleHeight;
+        }
+
+        // Function to update the AI paddle position
+        function updateAI() {
+            if (aiY + paddleHeight / 2 < ballY) {
+                aiY += aiSpeed;
+            } else {
+                aiY -= aiSpeed;
+            }
+
+            if (aiY < 0) aiY = 0;
+            if (aiY + paddleHeight > canvas.height) aiY = canvas.height - paddleHeight;
+        }
+
+        // Function to update the game
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBall();
+            drawPaddles();
+            updateBall();
+            updatePlayer();
+            updateAI();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Keyboard input handling
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "ArrowUp") {
+                playerSpeed = -5;
+            } else if (e.key === "ArrowDown") {
+                playerSpeed = 5;
+            }
+        });
+
+        document.addEventListener("keyup", () => {
+            playerSpeed = 0;
+        });
+
+        // Start the game
+        gameLoop();
+    </script>
+</body>
+</html>
